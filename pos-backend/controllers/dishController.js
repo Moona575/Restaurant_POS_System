@@ -1,8 +1,8 @@
-const Dish = require("../models/dishModel");
-const Category = require("../models/categoryModel");
+const Dish = require("../models/Dishmodel");
+const Category = require("../models/Categorymodel");
 const createHttpError = require("http-errors");
 const mongoose = require("mongoose");
-
+ 
 // Add Dish
 const addDish = async (req, res, next) => {
   try {
