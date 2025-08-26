@@ -9,49 +9,47 @@ const dishRoutes = require("./routes/dishRoutes");
 
 const app = express();
 
+// Use Railway dynamic port
+const PORT = process.env.PORT || config.port;
 
-const PORT = config.port;
-connectDB();
+// Connect DB safely
+connectDB()
+  .then(() => console.log("DB Connected!"))
+  .catch(err => console.error("DB Connection Error:", err));
 
-// Middlewares
+// CORS setup
 const corsOptions = {
   origin: [
     'http://localhost:5173',
     'https://restaurant-pos-system-nine.vercel.app'
   ],
-  credentials: true,   // allows cookies/auth headers
-  optionsSuccessStatus: 200 // handle legacy browsers
+  credentials: true,
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // handle preflight
 
-// Handle preflight requests (important for axios with credentials)
-app.options('*', cors(corsOptions));
+// Middlewares
+app.use(express.json());
+app.use(cookieParser());
 
+// Root & favicon
+app.get("/", (req,res) => res.json({message : "Hello from POS Server!"}));
+app.get("/favicon.ico", (req,res) => res.sendStatus(204));
 
-app.use(express.json()); // parse incoming request in json format
-app.use(cookieParser())
-
-
-// Root Endpoint
-app.get("/", (req,res) => {
-    res.json({message : "Hello from POS Server!"});
-})
-
-// Other Endpoints
+// Routes
 app.use("/api/user", require("./routes/userRoute"));
 app.use("/api/order", require("./routes/orderRoute"));
 app.use("/api/table", require("./routes/tableRoute"));
 app.use("/api/payment", require("./routes/paymentRoute"));
-
-
 app.use("/api/categories", categoryRoutes);
 app.use("/api/dishes", dishRoutes);
+
 // Global Error Handler
 app.use(globalErrorHandler);
 
-
-// Server
+// Start server
 app.listen(PORT, () => {
-    console.log(`☑️  POS Server is listening on port ${PORT}`);
-})
+    console.log(`☑️ POS Server is listening on port ${PORT}`);
+});
