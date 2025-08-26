@@ -16,10 +16,23 @@ module.exports = async function handler(req, res) {
     try {
       await register(req, res);
     } catch (err) {
-      console.error("Error in register:", err);
+      // Log full error details
+      console.error("Error in register:", {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+        status: err.status,
+        code: err.code,
+        response: err.response || null,
+      });
+
+      // Return detailed error in response (only for debugging)
       return res.status(err.status || 500).json({
         success: false,
-        message: err.message || "Registration failed"
+        message: err.message || "Registration failed",
+        name: err.name,
+        stack: err.stack,
+        code: err.code,
       });
     }
   } else {
