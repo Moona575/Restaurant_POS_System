@@ -1,10 +1,10 @@
 import connectDB from "../../config/database";
-import { register } from "../../controllers/userController";
+import { logout } from "../../controllers/userController";
+import { isVerifiedUser } from "../../middlewares/tokenVerification";
 
 connectDB();
 
 export default async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', 'https://restaurant-pos-system-nine.vercel.app');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -14,7 +14,9 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      await register(req, res);
+      await isVerifiedUser(req, res, async () => {
+        await logout(req, res);
+      });
     } catch (err) {
       res.status(err.status || 500).json({ success: false, message: err.message });
     }
