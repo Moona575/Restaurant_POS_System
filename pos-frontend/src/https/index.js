@@ -42,7 +42,7 @@ export const updateOrderStatus = ({ orderId, orderStatus }) =>
 import axios from "axios"; // <-- make sure this is at the top
 
 const API = axios.create({
-  baseURL: "http://localhost:8000/api", // replace with your backend URL
+  baseURL: "https://restaurant-pos-system-ulxe.vercel.app/api", // replace with your backend URL
   withCredentials: true,
 });
 
