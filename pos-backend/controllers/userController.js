@@ -1,10 +1,10 @@
-const User = require("../models/userModel");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const config = require("../config/config");
+import User from "../models/userModel.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import config from "../config/config.js";
 
 // ==================== REGISTER ====================
-const register = async (req, res) => {
+export const register = async (req, res) => {
   try {
     const { name, phone, email, password, role } = req.body;
 
@@ -23,12 +23,13 @@ const register = async (req, res) => {
 
     return res.status(201).json({ success: true, message: "New user created!", data: newUser });
   } catch (error) {
+    console.error("Register error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // ==================== LOGIN ====================
-const login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -52,29 +53,38 @@ const login = async (req, res) => {
 
     return res.status(200).json({ success: true, message: "User login successfully!", data: user });
   } catch (error) {
+    console.error("Login error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // ==================== GET USER DATA ====================
-const getUserData = async (req, res) => {
+export const getUserData = async (req, res) => {
   try {
     // Assuming req.user is set after JWT verification
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
+
     const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
     return res.status(200).json({ success: true, data: user });
   } catch (error) {
+    console.error("GetUserData error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // ==================== LOGOUT ====================
-const logout = async (req, res) => {
+export const logout = async (req, res) => {
   try {
     res.setHeader("Set-Cookie", `accessToken=; HttpOnly; Path=/; Max-Age=0; SameSite=None; Secure`);
     return res.status(200).json({ success: true, message: "User logout successfully!" });
   } catch (error) {
+    console.error("Logout error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
-module.exports = { register, login, getUserData, logout };
