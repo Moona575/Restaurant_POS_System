@@ -4,14 +4,14 @@ const { register } = require("../../controllers/userController");
 module.exports = async function handler(req, res) {
   try {
     // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', '*'); // or specific origin instead of *
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-    // Handle preflight OPTIONS
+    // Handle preflight OPTIONS request
     if (req.method === 'OPTIONS') {
-      return res.status(200).end();
+      return res.status(204).end(); // 204 No Content is better for OPTIONS
     }
 
     // Only allow POST
@@ -24,10 +24,10 @@ module.exports = async function handler(req, res) {
 
     // Connect to database
     await connectDB();
-    
+
     // Call register function
     await register(req, res);
-    
+
   } catch (error) {
     console.error("Handler error:", error);
     return res.status(500).json({
