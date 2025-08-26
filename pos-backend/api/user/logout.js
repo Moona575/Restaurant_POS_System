@@ -1,6 +1,6 @@
 import connectDB from "../../config/database";
 import { logout } from "../../controllers/userController";
-import { isVerifiedUser } from "../../middlewares/tokenVerification";
+import { isVerifiedUser } from "../middlewares/tokenVerification";
 
 connectDB();
 

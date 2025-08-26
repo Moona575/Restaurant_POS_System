@@ -1,4 +1,4 @@
-const Table = require("../models/tableModel");
+const Table = require("../../models/tableModel");
 const createHttpError = require("http-errors");
 const mongoose = require("mongoose")
 

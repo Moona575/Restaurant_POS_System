@@ -8,7 +8,7 @@ const {
   getDishesByCategory 
 } = require("../controllers/dishController");
 const router = express.Router();
-const { isVerifiedUser } = require("../middlewares/tokenVerification");
+const { isVerifiedUser } = require("../api/middlewares/tokenVerification");
 
 // Add a new dish
 router.route("/").post(isVerifiedUser, addDish);

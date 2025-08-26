@@ -1,5 +1,5 @@
 const createHttpError = require("http-errors");
-const Order = require("../models/orderModel");
+const Order = require("../../models/orderModel");
 const { default: mongoose } = require("mongoose");
 
 const addOrder = async (req, res, next) => {

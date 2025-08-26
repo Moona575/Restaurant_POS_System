@@ -1,7 +1,7 @@
 const Razorpay = require("razorpay");
 const config = require("../config/config");
 const crypto = require("crypto");
-const Payment = require("../models/paymentModel");
+const Payment = require("../../models/paymentModel");
 
 const createOrder = async (req, res, next) => {
   const razorpay = new Razorpay({
