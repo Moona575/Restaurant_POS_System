@@ -2,23 +2,31 @@ const connectDB = require("../../config/database");
 const { register } = require("../../controllers/userController");
 
 module.exports = async function handler(req, res) {
-  // Always set CORS headers first
   const allowedOrigin = 'https://restaurant-pos-system-nine.vercel.app';
   res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-  // Preflight check
+  // Preflight request should return immediately
   if (req.method === 'OPTIONS') {
-    return res.status(204).end(); // No Content
+    return res.status(204).end();
   }
 
   try {
     await connectDB();
 
     if (req.method === 'POST') {
-      await register(req, res);
+      try {
+        await register(req, res);
+      } catch (err) {
+        console.error("Register error:", err);
+        return res.status(err.status || 500).json({
+          success: false,
+          message: err.message || "Registration failed",
+          stack: err.stack
+        });
+      }
     } else if (req.method === 'GET') {
       return res.status(200).json({ message: 'GET request received' });
     } else {
@@ -27,8 +35,8 @@ module.exports = async function handler(req, res) {
     }
 
   } catch (err) {
-    console.error("Serverless function error:", err);
-    return res.status(err.status || 500).json({
+    console.error("Serverless handler error:", err);
+    return res.status(500).json({
       success: false,
       message: err.message || "Internal Server Error",
       stack: err.stack
