@@ -3,10 +3,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+html, body, #root {
+  height: 100%;
+  min-height: 100%;
+}
 
 body {
+  display: flex;
+  flex-direction: column;
   font-family: 'Inter', sans-serif;
 }
+
+
+  
+
+
 
 /* FullScreenLoader.css */
 

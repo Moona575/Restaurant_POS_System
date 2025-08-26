@@ -3,7 +3,11 @@ import { MdTableBar, MdCategory } from "react-icons/md";
 import { BiSolidDish } from "react-icons/bi";
 import Metrics from "../components/dashboard/Metrics";
 import RecentOrders from "../components/dashboard/RecentOrders";
-import Modal from "../components/dashboard/Modal";
+
+// Import your modals
+import TableModal from "../components/dashboard/Modal";
+import CategoryModal from "../components/dashboard/CategoryModal";
+import DishModal from "../components/dashboard/DishModal";
 
 const buttons = [
   { label: "Add Table", icon: <MdTableBar />, action: "table" },
@@ -14,62 +18,68 @@ const buttons = [
 const tabs = ["Metrics", "Orders", "Payments"];
 
 const Dashboard = () => {
-
   useEffect(() => {
-    document.title = "POS | Admin Dashboard"
-  }, [])
+    document.title = "POS | Admin Dashboard";
+  }, []);
 
-  const [isTableModalOpen, setIsTableModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("Metrics");
+  const [activeModal, setActiveModal] = useState(null); // 'table' | 'category' | 'dishes' | null
 
-  const handleOpenModal = (action) => {
-    if (action === "table") setIsTableModalOpen(true);
-  };
+  const handleOpenModal = (action) => setActiveModal(action);
+  const handleCloseModal = () => setActiveModal(null);
 
   return (
-    <div className="bg-[#1f1f1f] h-[calc(100vh-5rem)]">
-      <div className="container mx-auto flex items-center justify-between py-14 px-6 md:px-4">
-        <div className="flex items-center gap-3">
-          {buttons.map(({ label, icon, action }) => {
-            return (
-              <button
-                onClick={() => handleOpenModal(action)}
-                className="bg-[#1a1a1a] hover:bg-[#262626] px-8 py-3 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2"
-              >
-                {label} {icon}
-              </button>
-            );
-          })}
+    <div className="bg-[#1f1f1f] min-h-screen text-white">
+      {/* Header: Buttons + Tabs */}
+      <div className="container mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between py-4 sm:py-6 px-3 sm:px-4 gap-3 sm:gap-4">
+        
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 justify-center sm:justify-start lg:justify-start w-full sm:w-auto">
+          {buttons.map(({ label, icon, action }) => (
+            <button
+              key={action}
+              onClick={() => handleOpenModal(action)}
+              className="bg-[#1a1a1a] hover:bg-[#262626] px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-semibold flex items-center gap-1 sm:gap-2 text-xs sm:text-sm md:text-base transition-colors whitespace-nowrap w-full sm:w-auto justify-center sm:justify-start"
+            >
+              <span className="text-sm sm:text-base">{icon}</span>
+              <span>{label}</span>
+            </button>
+          ))}
         </div>
 
-        <div className="flex items-center gap-3">
-          {tabs.map((tab) => {
-            return (
-              <button
-                className={`
-                px-8 py-3 rounded-lg text-[#f5f5f5] font-semibold text-md flex items-center gap-2 ${
-                  activeTab === tab
-                    ? "bg-[#262626]"
-                    : "bg-[#1a1a1a] hover:bg-[#262626]"
-                }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab}
-              </button>
-            );
-          })}
+        {/* Tabs */}
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 justify-center sm:justify-center lg:justify-end w-full sm:w-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-semibold flex items-center gap-1 sm:gap-2 text-xs sm:text-sm md:text-base transition-colors whitespace-nowrap w-full sm:w-auto justify-center ${
+                activeTab === tab
+                  ? "bg-[#262626]"
+                  : "bg-[#1a1a1a] hover:bg-[#262626]"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
       </div>
 
-      {activeTab === "Metrics" && <Metrics />}
-      {activeTab === "Orders" && <RecentOrders />}
-      {activeTab === "Payments" && 
-        <div className="text-white p-6 container mx-auto">
-          Payment Component Coming Soon
-        </div>
-      }
+      {/* Tab Content */}
+      <div className="container mx-auto px-3 sm:px-4 pb-8 sm:pb-10">
+        {activeTab === "Metrics" && <Metrics />}
+        {activeTab === "Orders" && <RecentOrders />}
+        {activeTab === "Payments" && (
+          <div className="text-center py-8 sm:py-10 text-gray-400 text-sm sm:text-base">
+            Payment Component Coming Soon
+          </div>
+        )}
+      </div>
 
-      {isTableModalOpen && <Modal setIsTableModalOpen={setIsTableModalOpen} />}
+      {/* Modals */}
+      {activeModal === "table" && <TableModal setIsTableModalOpen={handleCloseModal} />}
+      {activeModal === "category" && <CategoryModal setIsCategoryModalOpen={handleCloseModal} />}
+      {activeModal === "dishes" && <DishModal setIsDishModalOpen={handleCloseModal} />}
     </div>
   );
 };
