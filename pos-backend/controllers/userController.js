@@ -1,15 +1,22 @@
-import User from "../models/userModel.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import config from "../config/config.js";
+const User = require("../models/userModel");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const config = require("../config/config");
 
 // ==================== REGISTER ====================
-export const register = async (req, res) => {
+const register = async (req, res) => {
   try {
+    console.log("Register function called");
+    console.log("Request body:", req.body);
+    
     const { name, phone, email, password, role } = req.body;
 
     if (!name || !phone || !email || !password || !role) {
-      return res.status(400).json({ success: false, message: "All fields are required!" });
+      return res.status(400).json({ 
+        success: false, 
+        message: "All fields are required!",
+        received: { name: !!name, phone: !!phone, email: !!email, password: !!password, role: !!role }
+      });
     }
 
     const isUserPresent = await User.findOne({ email });
@@ -21,7 +28,19 @@ export const register = async (req, res) => {
     const newUser = new User({ name, phone, email, password: hashedPassword, role });
     await newUser.save();
 
-    return res.status(201).json({ success: true, message: "New user created!", data: newUser });
+    console.log("User created successfully:", newUser._id);
+
+    return res.status(201).json({ 
+      success: true, 
+      message: "New user created!", 
+      data: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        role: newUser.role
+      }
+    });
   } catch (error) {
     console.error("Register error:", error);
     return res.status(500).json({ success: false, message: error.message });
@@ -29,7 +48,7 @@ export const register = async (req, res) => {
 };
 
 // ==================== LOGIN ====================
-export const login = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -59,9 +78,8 @@ export const login = async (req, res) => {
 };
 
 // ==================== GET USER DATA ====================
-export const getUserData = async (req, res) => {
+const getUserData = async (req, res) => {
   try {
-    // Assuming req.user is set after JWT verification
     if (!req.user || !req.user._id) {
       return res.status(401).json({ success: false, message: "User not authenticated" });
     }
@@ -79,7 +97,7 @@ export const getUserData = async (req, res) => {
 };
 
 // ==================== LOGOUT ====================
-export const logout = async (req, res) => {
+const logout = async (req, res) => {
   try {
     res.setHeader("Set-Cookie", `accessToken=; HttpOnly; Path=/; Max-Age=0; SameSite=None; Secure`);
     return res.status(200).json({ success: true, message: "User logout successfully!" });
@@ -87,4 +105,11 @@ export const logout = async (req, res) => {
     console.error("Logout error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
+};
+
+module.exports = {
+  register,
+  login,
+  getUserData,
+  logout
 };

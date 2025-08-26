@@ -2,44 +2,37 @@ const connectDB = require("../../config/database");
 const { register } = require("../../controllers/userController");
 
 module.exports = async function handler(req, res) {
-  const allowedOrigin = 'https://restaurant-pos-system-nine.vercel.app';
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-  // Preflight request should return immediately
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-
   try {
-    await connectDB();
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-    if (req.method === 'POST') {
-      try {
-        await register(req, res);
-      } catch (err) {
-        console.error("Register error:", err);
-        return res.status(err.status || 500).json({
-          success: false,
-          message: err.message || "Registration failed",
-          stack: err.stack
-        });
-      }
-    } else if (req.method === 'GET') {
-      return res.status(200).json({ message: 'GET request received' });
-    } else {
-      res.setHeader('Allow', ['POST', 'GET']);
-      return res.status(405).json({ message: `Method ${req.method} not allowed` });
+    // Handle preflight OPTIONS
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
     }
 
-  } catch (err) {
-    console.error("Serverless handler error:", err);
+    // Only allow POST
+    if (req.method !== 'POST') {
+      return res.status(405).json({ 
+        success: false, 
+        message: 'Method not allowed. Use POST.' 
+      });
+    }
+
+    // Connect to database
+    await connectDB();
+    
+    // Call register function
+    await register(req, res);
+    
+  } catch (error) {
+    console.error("Handler error:", error);
     return res.status(500).json({
       success: false,
-      message: err.message || "Internal Server Error",
-      stack: err.stack
+      message: error.message || "Internal server error"
     });
   }
 };
