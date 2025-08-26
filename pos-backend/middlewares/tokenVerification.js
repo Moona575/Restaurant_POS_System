@@ -1,7 +1,7 @@
 const createHttpError = require("http-errors");
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
-const User = require("../../models/userModel");
+const User = require("../models/userModel");
 
 
 const isVerifiedUser = async (req, res, next) => {

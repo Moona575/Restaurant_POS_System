@@ -1,4 +1,4 @@
-const config = require("../api/config/config");
+const config = require("../config/config");
 
 const globalErrorHandler = (err, req, res, next) => {
     const statusCode = err.statusCode || 500;

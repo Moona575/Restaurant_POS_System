@@ -1,7 +1,7 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const config = require("./config/config");
-const globalErrorHandler = require("./api/middlewares/globalErrorHandler");
+const globalErrorHandler = require("./middlewares/globalErrorHandler");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const categoryRoutes = require("./routes/categoryRoutes");
@@ -15,9 +15,12 @@ connectDB();
 
 // Middlewares
 app.use(cors({
-  origin: "*"
+    credentials: true,
+    origin: [
+        'http://localhost:5173', // for local dev
+        'https://restaurant-pos-system-nine.vercel.app' // your deployed frontend
+    ]
 }));
-
 
 app.use(express.json()); // parse incoming request in json format
 app.use(cookieParser())
@@ -29,7 +32,7 @@ app.get("/", (req,res) => {
 })
 
 // Other Endpoints
-//app.use("/api/user", require("./routes/userRoute"));
+app.use("/api/user", require("./routes/userRoute"));
 app.use("/api/order", require("./routes/orderRoute"));
 app.use("/api/table", require("./routes/tableRoute"));
 app.use("/api/payment", require("./routes/paymentRoute"));
