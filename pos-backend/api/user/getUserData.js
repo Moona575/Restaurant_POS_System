@@ -1,6 +1,6 @@
 import connectDB from "../../config/database";
 import { getUserData } from "../../controllers/userController";
-import { isVerifiedUser } from "../../middlewares/tokenVerification";
+import { authMiddleware } from "../../middlewares/authMiddleware";
 
 connectDB();
 
@@ -13,13 +13,9 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
 
   if (req.method === "GET") {
-    try {
-      await isVerifiedUser(req, res, async () => {
-        await getUserData(req, res);
-      });
-    } catch (err) {
-      res.status(err.status || 500).json({ success: false, message: err.message });
-    }
+    const user = await authMiddleware(req, res);
+    if (!user) return; // authMiddleware already sent response if unauthorized
+    await getUserData(req, res);
   } else {
     res.setHeader("Allow", ["GET"]);
     res.status(405).json({ message: `Method ${req.method} not allowed` });
