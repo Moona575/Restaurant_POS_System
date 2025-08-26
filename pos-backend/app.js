@@ -14,13 +14,20 @@ const PORT = config.port;
 connectDB();
 
 // Middlewares
-app.use(cors({
-    credentials: true,
-    origin: [
-        'http://localhost:5173', // for local dev
-        'https://restaurant-pos-system-nine.vercel.app' // your deployed frontend
-    ]
-}));
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',
+    'https://restaurant-pos-system-nine.vercel.app'
+  ],
+  credentials: true,   // allows cookies/auth headers
+  optionsSuccessStatus: 200 // handle legacy browsers
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests (important for axios with credentials)
+app.options('*', cors(corsOptions));
+
 
 app.use(express.json()); // parse incoming request in json format
 app.use(cookieParser())
