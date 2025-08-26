@@ -4,11 +4,10 @@ import { axiosWrapper } from "./axiosWrapper";
 
 // Auth Endpoints
 // Auth Endpoints
-export const login = (data) => axiosWrapper.post("/api/user/login", data);
-export const register = (data) => axiosWrapper.post("/api/user/register", data);
-export const getUserData = () => axiosWrapper.get("/api/user/getUserData");
-export const logout = () => axiosWrapper.post("/api/user/logout");
-
+export const login = (data) => axiosWrapper.post("/user/login", data);
+export const register = (data) => axiosWrapper.post("/user/register", data);
+export const getUserData = () => axiosWrapper.get("/user/getUserData");
+export const logout = (data) => axiosWrapper.post("/user/logout", data);
 
 // Table Endpoints
 export const addTable = (data) => axiosWrapper.post("/api/table/", data);
