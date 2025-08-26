@@ -3,10 +3,9 @@ import { axiosWrapper } from "./axiosWrapper";
 // API Endpoints
 
 // Auth Endpoints
-// Auth Endpoints
 export const login = (data) => axiosWrapper.post("/api/user/login", data);
 export const register = (data) => axiosWrapper.post("/api/user/register", data);
-export const getUserData = () => axiosWrapper.get("/api/user/getUserData");
+export const getUserData = () => axiosWrapper.get("/api/user");
 export const logout = () => axiosWrapper.post("/api/user/logout");
 
 // Table Endpoints
@@ -43,7 +42,7 @@ export const updateOrderStatus = ({ orderId, orderStatus }) =>
 import axios from "axios"; // <-- make sure this is at the top
 
 const API = axios.create({
-  baseURL: "https://restaurant-pos-system-ulxe.vercel.app", // replace with your backend URL
+  baseURL: "http://localhost:8000/api", // replace with your backend URL
   withCredentials: true,
 });
 
