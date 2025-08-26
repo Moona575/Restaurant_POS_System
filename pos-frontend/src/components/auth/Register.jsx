@@ -23,6 +23,7 @@ const Register = ({setIsRegister}) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     registerMutation.mutate(formData);
+    console.log("Submitting form", formData)
   };
 
   const registerMutation = useMutation({
