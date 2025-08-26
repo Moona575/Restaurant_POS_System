@@ -1,14 +1,14 @@
-const express = require("express");
-const { register, login, getUserData, logout } = require("../controllers/userController");
-const { isVerifiedUser } = require("../api/middlewares/tokenVerification");
-const router = express.Router();
+//const express = require("express");
+//const { register, login, getUserData, logout } = require("../controllers/userController");
+//const { isVerifiedUser } = require("../api/middlewares/tokenVerification");
+//const router = express.Router();
 
 
 // Authentication Routes
-router.route("/register").post(register);
-router.route("/login").post(login);
-router.route("/logout").post(isVerifiedUser, logout)
+//router.route("/register").post(register);
+//router.route("/login").post(login);
+//router.route("/logout").post(isVerifiedUser, logout)
 
-router.route("/").get(isVerifiedUser , getUserData);
+//router.route("/").get(isVerifiedUser , getUserData);
 
-module.exports = router;
+//module.exports = router;
