@@ -2,27 +2,26 @@ const connectDB = require("../../config/database");
 const { register } = require("../../controllers/userController");
 
 module.exports = async function handler(req, res) {
+  // Always set CORS headers first
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Or specific origin
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  // Handle preflight OPTIONS request and exit early
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end(); // No need to connect to DB or call register
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ 
+      success: false, 
+      message: 'Method not allowed. Use POST.' 
+    });
+  }
+
   try {
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*'); // or specific origin instead of *
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-    // Handle preflight OPTIONS request
-    if (req.method === 'OPTIONS') {
-      return res.status(204).end(); // 204 No Content is better for OPTIONS
-    }
-
-    // Only allow POST
-    if (req.method !== 'POST') {
-      return res.status(405).json({ 
-        success: false, 
-        message: 'Method not allowed. Use POST.' 
-      });
-    }
-
-    // Connect to database
+    // Connect to database only for POST
     await connectDB();
 
     // Call register function
