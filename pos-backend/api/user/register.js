@@ -1,5 +1,5 @@
 const connectDB = require("../../config/database");
-const { register } = require("../../controllers/userController");
+const { register, getUserData } = require("../../controllers/userController");
 
 connectDB();
 
@@ -15,18 +15,20 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  if (req.method === "POST") {
-    try {
+  try {
+    if (req.method === "POST") {
       await register(req, res);
-    } catch (err) {
-      console.error("Error in register:", err);
-      res.status(err.status || 500).json({ 
-        success: false, 
-        message: err.message || "Registration failed" 
-      });
+    } else if (req.method === "GET") {
+      await getUserData(req, res);
+    } else {
+      res.setHeader("Allow", ["GET", "POST"]);
+      return res.status(405).json({ message: `Method ${req.method} not allowed` });
     }
-  } else {
-    res.setHeader("Allow", ["POST"]);
-    res.status(405).json({ message: `Method ${req.method} not allowed` });
+  } catch (err) {
+    console.error("Error in handler:", err);
+    res.status(err.status || 500).json({ 
+      success: false, 
+      message: err.message || "Request failed" 
+    });
   }
 };
