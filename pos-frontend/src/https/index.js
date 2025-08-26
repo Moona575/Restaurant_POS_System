@@ -9,7 +9,6 @@ export const register = (data) => axiosWrapper.post("/api/user/register", data);
 export const getUserData = () => axiosWrapper.get("/api/user/getUserData");
 export const logout = () => axiosWrapper.post("/api/user/logout");
 
-
 // Table Endpoints
 export const addTable = (data) => axiosWrapper.post("/api/table/", data);
 export const getTables = () => axiosWrapper.get("/api/table");
