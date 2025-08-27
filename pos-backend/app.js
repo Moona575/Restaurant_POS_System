@@ -14,7 +14,9 @@ app.use((req, res, next) => {
   next();
 });
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
+console.log(`🔍 Environment PORT: ${process.env.PORT}`);
+console.log(`🔍 Using PORT: ${PORT}`);
 
 // CORS setup
 const corsOptions = {
@@ -52,7 +54,11 @@ const startServer = async () => {
   try {
     await connectDB();
     console.log("✅ Database connected!");
-    app.listen(PORT, () => console.log(`☑️ POS Server listening on port ${PORT}`));
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`☑️ POS Server listening on 0.0.0.0:${PORT}`);
+      console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔗 Health check: http://0.0.0.0:${PORT}/`);
+    });
   } catch (err) {
     console.error("❌ Failed to start server:", err);
     process.exit(1);
