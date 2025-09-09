@@ -38,7 +38,17 @@ export const verifyPaymentRazorpay = (data) =>
 export const addOrder = (data) => axiosWrapper.post("/api/order/", data);
 export const getOrders = () => axiosWrapper.get("/api/order");
 export const updateOrderStatus = ({ orderId, orderStatus }) =>
+  
   axiosWrapper.put(`/api/order/${orderId}`, { orderStatus });
+  // NEW: Complete order (full order update)
+export const completeOrder = (orderId, data) =>
+  axiosWrapper.put(`/api/order/complete/${orderId}`, data);
+export const modifyOrder = (orderId, data) =>
+  axiosWrapper.put(`/api/order/modify/${orderId}`, data);
+export const getOrder = (id) => axiosWrapper.get(`/api/order/${id}`);
+// src/https/index.js
+export const deleteOrderItem = (orderId, itemId) =>
+  axiosWrapper.delete(`/api/order/${orderId}/item/${itemId}`);
 import axios from "axios"; // <-- make sure this is at the top
 
 const API = axios.create({

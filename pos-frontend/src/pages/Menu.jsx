@@ -1,3 +1,5 @@
+// Menu.jsx (Corrected Version)
+
 import React, { useEffect } from "react";
 import BottomNav from "../components/shared/BottomNav";
 import BackButton from "../components/shared/BackButton";
@@ -6,15 +8,46 @@ import MenuContainer from "../components/menu/MenuContainer";
 import CustomerInfo from "../components/menu/CustomerInfo";
 import CartInfo from "../components/menu/CartInfo";
 import Bill from "../components/menu/Bill";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getOrder } from "../https";
+import { setCustomer } from "../redux/slices/customerSlice";
+import { setCartItems } from "../redux/slices/cartSlice";
 
 const Menu = () => {
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get("orderId");
+  const dispatch = useDispatch();
+  const customerData = useSelector((state) => state.customer); // Used for display
 
-    useEffect(() => {
-      document.title = "POS | Menu"
-    }, [])
+  const { data: fetchedOrderData, isLoading } = useQuery({
+    queryKey: ["order", orderId],
+    queryFn: () => getOrder(orderId),
+    enabled: !!orderId,
+  });
 
-  const customerData = useSelector((state) => state.customer);
+  // Hydrate Redux with ALL customer data from the fetched order
+  useEffect(() => {
+    if (fetchedOrderData?.data) {
+      const order = fetchedOrderData.data;
+
+      // 🟢 FIX: Dispatch all customer details to Redux
+      dispatch(
+        setCustomer({
+          customerName: order.customerDetails?.name,
+          customerPhone: order.customerDetails?.phone, // Pass phone
+          guests: order.customerDetails?.guests, // Pass guests
+          table: order.table,
+        })
+      );
+      dispatch(setCartItems(order.items));
+    }
+  }, [fetchedOrderData, dispatch]);
+
+  useEffect(() => {
+    document.title = "POS | Menu";
+  }, []);
 
   return (
     <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden flex gap-3">
@@ -31,6 +64,7 @@ const Menu = () => {
             <div className="flex items-center gap-3 cursor-pointer">
               <MdRestaurantMenu className="text-[#f5f5f5] text-4xl" />
               <div className="flex flex-col items-start">
+                {/* Display from Redux for consistency */}
                 <h1 className="text-md text-[#f5f5f5] font-semibold tracking-wide">
                   {customerData.customerName || "Customer Name"}
                 </h1>
@@ -41,21 +75,18 @@ const Menu = () => {
             </div>
           </div>
         </div>
-
         <MenuContainer />
       </div>
+
       {/* Right Div */}
       <div className="flex-[1] bg-[#1a1a1a] mt-4 mr-3 h-[780px] rounded-lg pt-2">
-        {/* Customer Info */}
-        <CustomerInfo />
+        {/* CustomerInfo and Bill components will now use the correct data from Redux */}
+        <CustomerInfo /> 
         <hr className="border-[#2a2a2a] border-t-2" />
-        {/* Cart Items */}
         <CartInfo />
         <hr className="border-[#2a2a2a] border-t-2" />
-        {/* Bills */}
         <Bill />
       </div>
-
       <BottomNav />
     </section>
   );

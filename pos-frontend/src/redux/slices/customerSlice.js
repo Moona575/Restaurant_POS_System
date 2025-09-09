@@ -1,3 +1,5 @@
+// src/redux/slices/customerSlice.js (Corrected)
+
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -8,17 +10,19 @@ const initialState = {
     table: null
 }
 
-
 const customerSlice = createSlice({
     name : "customer",
     initialState,
     reducers : {
+        // 🟢 FIX: Accept multiple possible keys from the payload
         setCustomer: (state, action) => {
-            const { name, phone, guests } = action.payload;
-            state.orderId = `${Date.now()}`;
-            state.customerName = name;
-            state.customerPhone = phone;
+            const { customerName, customerPhone, guests, table, name, phone } = action.payload;
+            
+            // Prioritize the correct keys, but fall back to the old ones if necessary
+            state.customerName = customerName || name || "";
+            state.customerPhone = customerPhone || phone || "";
             state.guests = guests;
+            state.table = table;
         },
 
         removeCustomer: (state) => {
@@ -31,10 +35,8 @@ const customerSlice = createSlice({
         updateTable: (state, action) => {
             state.table = action.payload.table;
         }
-
     }
 })
-
 
 export const { setCustomer, removeCustomer, updateTable } = customerSlice.actions;
 export default customerSlice.reducer;
