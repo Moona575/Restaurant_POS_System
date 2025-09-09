@@ -6,63 +6,47 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const categoryRoutes = require("./routes/categoryRoutes");
 const dishRoutes = require("./routes/dishRoutes");
+const orderRoute = require("./routes/orderRoute");
 
 const app = express();
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
 
-const PORT = process.env.PORT || 3000;
-console.log(`🔍 Environment PORT: ${process.env.PORT}`);
-console.log(`🔍 Using PORT: ${PORT}`);
 
-// CORS setup
-const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "https://restaurant-pos-system-nine.vercel.app"
-  ],
-  credentials: true,
-  optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // preflight
+const PORT = config.port;
+connectDB();
 
 // Middlewares
-app.use(express.json());
-app.use(cookieParser());
+app.use(cors({
+    credentials: true,
+    origin: [
+        'http://localhost:5173', // for local dev
+        'https://restaurant-pos-system-nine.vercel.app' // your deployed frontend
+    ]
+}));
 
-// Root and favicon
-app.get("/", (req, res) => res.status(200).json({ message: "Hello from POS Server!" }));
-app.get("/favicon.ico", (req, res) => res.sendStatus(204));
+app.use(express.json()); // parse incoming request in json format
+app.use(cookieParser())
 
-// API Routes
+
+// Root Endpoint
+app.get("/", (req,res) => {
+    res.json({message : "Hello from POS Server!"});
+})
+
+// Other Endpoints
 app.use("/api/user", require("./routes/userRoute"));
 app.use("/api/order", require("./routes/orderRoute"));
 app.use("/api/table", require("./routes/tableRoute"));
 app.use("/api/payment", require("./routes/paymentRoute"));
-app.use("/api/categories", require("./routes/categoryRoutes"))
-app.use("/api/dishes", require("./routes/dishRoutes"))
 
+
+
+app.use("/api/categories", categoryRoutes);
+app.use("/api/dishes", dishRoutes);
 // Global Error Handler
 app.use(globalErrorHandler);
 
-// Start server only after DB is connected
-const startServer = async () => {
-  try {
-    await connectDB();
-    console.log("✅ Database connected!");
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`☑️ POS Server listening on 0.0.0.0:${PORT}`);
-      console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🔗 Health check: http://0.0.0.0:${PORT}/`);
-    });
-  } catch (err) {
-    console.error("❌ Failed to start server:", err);
-    process.exit(1);
-  }
-};
 
-startServer();
+// Server
+app.listen(PORT, () => {
+    console.log(`☑️  POS Server is listening on port ${PORT}`);
+})
