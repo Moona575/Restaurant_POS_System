@@ -87,132 +87,156 @@ const Bill = () => {
   });
 
   const handlePlaceOrder = async () => {
-    if (!customerData || !cartData.length) {
-      enqueueSnackbar("Customer or cart data missing!", { variant: "warning" });
-      return;
-    }
+  if (!cartData.length) {
+    enqueueSnackbar("Cart data missing!", { variant: "warning" });
+    return;
+  }
 
-    const orderData = {
-      customerDetails: {
-        name: customerData.customerName || customerData.name || "Unknown",
-        phone: customerData.customerPhone || customerData.phone || "0000000000",
-        guests: customerData.guests || 1,
-      },
-      orderStatus: "In Progress",
-      bills: {
-        total,
-        tax,
-        totalWithTax: totalPriceWithTax,
-      },
-      // 🟢 FIX: Send the complete current cart data.
-      // The backend's `modifyOrder` controller will handle merging.
-      items: cartData,
-      table: customerData.table?.tableId || null,
-      paymentMethod: null,
-    };
-
-    try {
-      if (orderIdFromUrl) {
-        await modifyOrder(orderIdFromUrl, orderData);
-        enqueueSnackbar("Order updated successfully!", { variant: "success" });
-        setOrderInfo({ ...orderData, _id: orderIdFromUrl });
-      } else {
-        orderMutation.mutate(orderData);
-      }
-    } catch (err) {
-      console.error(err);
-      enqueueSnackbar("Failed to place/update order!", { variant: "error" });
-    }
+  // Use customer info from Redux if available, otherwise fallback to existing order (for modifications)
+  const customerDetails = {
+    name:
+      customerData.customerName ||
+      customerData.name ||
+      orderInfo?.customerDetails?.name ||
+      "Unknown",
+    phone:
+      customerData.customerPhone ||
+      customerData.phone ||
+      orderInfo?.customerDetails?.phone ||
+      "0000000000",
+    guests:
+      customerData.guests ||
+      orderInfo?.customerDetails?.guests ||
+      1,
   };
+
+  const orderData = {
+    customerDetails,
+    orderStatus: "In Progress",
+    bills: {
+      total,
+      tax,
+      totalWithTax: totalPriceWithTax,
+    },
+    items: cartData,
+    table: customerData.table?.tableId || orderInfo?.table || null,
+    paymentMethod: null,
+  };
+
+  try {
+    if (orderIdFromUrl) {
+      // Modify existing order using orderIdFromUrl
+      await modifyOrder(orderIdFromUrl, orderData);
+      enqueueSnackbar("Order updated successfully!", { variant: "success" });
+      setOrderInfo({ ...orderData, _id: orderIdFromUrl });
+    } else {
+      // Create new order
+      orderMutation.mutate(orderData);
+    }
+  } catch (err) {
+    console.error(err);
+    enqueueSnackbar("Failed to place/update order!", { variant: "error" });
+  }
+};
 
 
   const handleCompleteOrder = async () => {
-    if (!customerData || !cartData.length) {
-      enqueueSnackbar("Customer or cart data missing!", { variant: "warning" });
-      return;
-    }
+  if (!cartData.length) {
+    enqueueSnackbar("Cart data missing!", { variant: "warning" });
+    return;
+  }
 
-    if (!paymentMethod) {
-      enqueueSnackbar("Please select a payment method!", { variant: "warning" });
-      return;
-    }
+  if (!paymentMethod) {
+    enqueueSnackbar("Please select a payment method!", { variant: "warning" });
+    return;
+  }
 
-    // Use the orderId from the URL as the primary source of truth.
-    const orderId = orderIdFromUrl;
+  const orderId = orderIdFromUrl;
 
-    if (!orderId) {
-      enqueueSnackbar("No active order to complete!", { variant: "warning" });
-      return;
-    }
-    
-    // 🟢 NEW: Create a final order data object for the invoice.
-    // This object will be passed to the Invoice component.
-    const finalOrderData = {
-      ...orderInfo, // Start with the existing order info
-      customerDetails: {
-        name: customerData.customerName || customerData.name || "Unknown",
-        phone: customerData.customerPhone || customerData.phone || "0000000000",
-        guests: customerData.guests || 1,
-      },
-      orderStatus: "Completed",
-      bills: {
-        total,
-        tax,
-        totalWithTax: totalPriceWithTax,
-      },
-      items: cartData,
-      table: customerData.table?.tableId || null,
-      paymentMethod,
-    };
+  if (!orderId) {
+    enqueueSnackbar("No active order to complete!", { variant: "warning" });
+    return;
+  }
 
-    try {
-      if (paymentMethod === "Online") {
-        const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
-        if (!res) return enqueueSnackbar("Razorpay SDK failed to load!", { variant: "error" });
-        const { data } = await createOrderRazorpay({ amount: totalPriceWithTax.toFixed(2) });
-        const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-          amount: data.order.amount,
-          currency: data.order.currency,
-          order_id: data.order.id,
-          handler: async (response) => {
-            await completeOrder(orderId, {
-              ...finalOrderData, // Use the complete, up-to-date object
-              paymentData: {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-              },
-            });
-            enqueueSnackbar("Payment Successful & Order Completed!", { variant: "success" });
-            // 🟢 SET THE STATE WITH THE FINAL DATA BEFORE SHOWING THE INVOICE
-            setOrderInfo(finalOrderData); 
-            setShowInvoice(true);
-            setPaymentCompleted(true);
-            
-            // 🟢 CLEAR REDUX STATE AFTER THE INVOICE IS RENDERED
-            dispatch(removeAllItems());
-            dispatch(removeCustomer());
-          },
-        };
-        new window.Razorpay(options).open();
-      } else {
-        await completeOrder(orderId, finalOrderData); // Use the complete, up-to-date object
-        enqueueSnackbar("Order Completed with Cash Payment!", { variant: "success" });
-        // 🟢 SET THE STATE WITH THE FINAL DATA BEFORE SHOWING THE INVOICE
-        setOrderInfo(finalOrderData);
-        setShowInvoice(true);
-        setPaymentCompleted(true);
+  // Use Redux customer data first, fallback to existing orderInfo, then defaults
+  const customerDetails = {
+    name:
+      customerData.customerName ||
+      customerData.name ||
+      orderInfo?.customerDetails?.name ||
+      "Unknown",
+    phone:
+      customerData.customerPhone ||
+      customerData.phone ||
+      orderInfo?.customerDetails?.phone ||
+      "0000000000",
+    guests:
+      customerData.guests ||
+      orderInfo?.customerDetails?.guests ||
+      1,
+  };
 
-        // 🟢 CLEAR REDUX STATE AFTER THE INVOICE IS RENDERED
-        dispatch(removeAllItems());
-        dispatch(removeCustomer());
-      }
+  const finalOrderData = {
+    ...orderInfo, // keep existing order info
+    customerDetails,
+    orderStatus: "Completed",
+    bills: {
+      total,
+      tax,
+      totalWithTax: totalPriceWithTax,
+    },
+    items: cartData,
+    table: customerData.table?.tableId || orderInfo?.table || null,
+    paymentMethod,
+  };
 
-    } catch (err) {
-      console.error(err);
-      enqueueSnackbar("Failed to complete order!", { variant: "error" });
-    }
-  };
+  try {
+    if (paymentMethod === "Online") {
+      const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+      if (!res) return enqueueSnackbar("Razorpay SDK failed to load!", { variant: "error" });
+
+      const { data } = await createOrderRazorpay({ amount: totalPriceWithTax.toFixed(2) });
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: data.order.amount,
+        currency: data.order.currency,
+        order_id: data.order.id,
+        handler: async (response) => {
+          await completeOrder(orderId, {
+            ...finalOrderData,
+            paymentData: {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+            },
+          });
+
+          enqueueSnackbar("Payment Successful & Order Completed!", { variant: "success" });
+          setOrderInfo(finalOrderData);
+          setShowInvoice(true);
+          setPaymentCompleted(true);
+
+          dispatch(removeAllItems());
+          dispatch(removeCustomer());
+        },
+      };
+      new window.Razorpay(options).open();
+    } else {
+      await completeOrder(orderId, finalOrderData);
+      enqueueSnackbar("Order Completed with Cash Payment!", { variant: "success" });
+      setOrderInfo(finalOrderData);
+      setShowInvoice(true);
+      setPaymentCompleted(true);
+
+      dispatch(removeAllItems());
+      dispatch(removeCustomer());
+    }
+  } catch (err) {
+    console.error(err);
+    enqueueSnackbar("Failed to complete order!", { variant: "error" });
+  }
+};
+
 
   return (
     <>
