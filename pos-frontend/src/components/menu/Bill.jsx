@@ -205,15 +205,15 @@ const Bill = ({ orderData }) => {
       <div className="flex flex-col gap-2 px-3 sm:px-5 mt-2 w-full max-w-3xl mx-auto">
         <div className="flex justify-between text-[#f5f5f5]">
           <p>Items({cartData.length})</p>
-          <p>₹{total.toFixed(2)}</p>
+          <p>Rs {total.toFixed(2)}</p>
         </div>
         <div className="flex justify-between text-[#f5f5f5]">
           <p>Tax(5.25%)</p>
-          <p>₹{tax.toFixed(2)}</p>
+          <p>Rs {tax.toFixed(2)}</p>
         </div>
         <div className="flex justify-between text-[#f5f5f5] font-bold">
           <p>Total With Tax</p>
-          <p>₹{totalPriceWithTax.toFixed(2)}</p>
+          <p>Rs {totalPriceWithTax.toFixed(2)}</p>
         </div>
       </div>
 
