@@ -45,7 +45,11 @@ export const completeOrder = (orderId, data) =>
   axiosWrapper.put(`/api/order/complete/${orderId}`, data);
 export const modifyOrder = (orderId, data) =>
   axiosWrapper.put(`/api/order/modify/${orderId}`, data);
-export const getOrder = (id) => axiosWrapper.get(`/api/order/${id}`);
+export const getOrder = async (id) => {
+  const response = await axiosWrapper.get(`/api/order/${id}`);
+  return response.data; // <-- this is the actual order object
+};
+
 // src/https/index.js
 export const deleteOrderItem = (orderId, itemId) =>
   axiosWrapper.delete(`/api/order/${orderId}/item/${itemId}`);

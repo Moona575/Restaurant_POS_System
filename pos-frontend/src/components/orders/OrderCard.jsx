@@ -1,24 +1,45 @@
 import React from "react";
-import { FaCheckDouble, FaLongArrowAltRight } from "react-icons/fa";
-import { FaCircle } from "react-icons/fa";
+import { FaCheckDouble, FaLongArrowAltRight, FaCircle, FaEdit, FaTrash } from "react-icons/fa";
 import { formatDateAndTime, getAvatarName } from "../../utils/index";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { modifyOrder } from "../../https"; // ✅ your API call
+import { useNavigate } from "react-router-dom";
 
 const OrderCard = ({ key, order }) => {
-  console.log(order);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  // Cancel / Delete Mutation
+  const cancelMutation = useMutation({
+    mutationFn: (id) => modifyOrder(id, { orderStatus: "Canceled" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["orders"]); // refresh list
+    },
+  });
+
+  const handleDelete = () => cancelMutation.mutate(order._id);
+  const handleEdit = () => window.location.href = `/menu?orderId=${order._id}`;
+
   return (
     <div key={key} className="w-[500px] bg-[#262626] p-4 rounded-lg mb-4">
       <div className="flex items-center gap-5">
         <button className="bg-[#f6b100] p-3 text-xl font-bold rounded-lg">
           {getAvatarName(order.customerDetails.name)}
         </button>
+
         <div className="flex items-center justify-between w-[100%]">
           <div className="flex flex-col items-start gap-1">
             <h1 className="text-[#f5f5f5] text-lg font-semibold tracking-wide">
               {order.customerDetails.name}
             </h1>
-            <p className="text-[#ababab] text-sm">#{Math.floor(new Date(order.orderDate).getTime())} / Dine in</p>
-            <p className="text-[#ababab] text-sm">Table <FaLongArrowAltRight className="text-[#ababab] ml-2 inline" /> {order.table.tableNo}</p>
+            <p className="text-[#ababab] text-sm">
+              #{Math.floor(new Date(order.orderDate).getTime())} / Dine in
+            </p>
+            <p className="text-[#ababab] text-sm">
+              Table <FaLongArrowAltRight className="text-[#ababab] ml-2 inline" /> {order.table.tableNo}
+            </p>
           </div>
+
           <div className="flex flex-col items-end gap-2">
             {order.orderStatus === "Ready" ? (
               <>
@@ -26,8 +47,7 @@ const OrderCard = ({ key, order }) => {
                   <FaCheckDouble className="inline mr-2" /> {order.orderStatus}
                 </p>
                 <p className="text-[#ababab] text-sm">
-                  <FaCircle className="inline mr-2 text-green-600" /> Ready to
-                  serve
+                  <FaCircle className="inline mr-2 text-green-600" /> Ready to serve
                 </p>
               </>
             ) : (
@@ -40,14 +60,29 @@ const OrderCard = ({ key, order }) => {
                 </p>
               </>
             )}
+
+            {/* Edit/Delete Actions */}
+            <div className="flex gap-3 mt-1">
+              <FaEdit
+                className="text-blue-400 cursor-pointer hover:text-blue-500"
+                onClick={handleEdit}
+              />
+              <FaTrash
+                className="text-red-400 cursor-pointer hover:text-red-500"
+                onClick={handleDelete}
+              />
+            </div>
           </div>
         </div>
       </div>
+
       <div className="flex justify-between items-center mt-4 text-[#ababab]">
         <p>{formatDateAndTime(order.orderDate)}</p>
         <p>{order.items.length} Items</p>
       </div>
+
       <hr className="w-full mt-4 border-t-1 border-gray-500" />
+
       <div className="flex items-center justify-between mt-4">
         <h1 className="text-[#f5f5f5] text-lg font-semibold">Total</h1>
         <p className="text-[#f5f5f5] text-lg font-semibold">₹{order.bills.totalWithTax.toFixed(2)}</p>

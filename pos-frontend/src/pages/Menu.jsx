@@ -1,6 +1,4 @@
-// Menu.jsx (Corrected Version)
-
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import BottomNav from "../components/shared/BottomNav";
 import BackButton from "../components/shared/BackButton";
 import { MdRestaurantMenu } from "react-icons/md";
@@ -12,64 +10,76 @@ import { useSelector, useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getOrder } from "../https";
-import { setCustomer } from "../redux/slices/customerSlice";
-import { setCartItems } from "../redux/slices/cartSlice";
+import { removeAllItems, setCartItems } from "../redux/slices/cartSlice";
+import { setCustomer, removeCustomer } from "../redux/slices/customerSlice";
 
 const Menu = () => {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get("orderId");
   const dispatch = useDispatch();
-  const customerData = useSelector((state) => state.customer); // Used for display
+
+  const loadedOrderRef = useRef(null);
 
   const { data: fetchedOrderData, isLoading } = useQuery({
     queryKey: ["order", orderId],
-    queryFn: () => getOrder(orderId),
+    queryFn: async () => {
+      if (!orderId) return null;
+      const response = await getOrder(orderId);
+      return response.data;
+    },
     enabled: !!orderId,
-  });
+    refetchOnMount: "always",
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+    cacheTime: 0,
+    onSuccess: (order) => {
+      if (!order) return;
 
-  // Hydrate Redux with ALL customer data from the fetched order
-  useEffect(() => {
-    if (fetchedOrderData?.data) {
-      const order = fetchedOrderData.data;
+      // Clear previous Redux state only if switching orders
+      if (loadedOrderRef.current !== orderId) {
+        dispatch(removeAllItems());
+        dispatch(removeCustomer());
+      }
 
-      // 🟢 FIX: Dispatch all customer details to Redux
+      // Update Redux for cart items & customer
+      dispatch(setCartItems(order.items || []));
       dispatch(
         setCustomer({
           customerName: order.customerDetails?.name,
-          customerPhone: order.customerDetails?.phone, // Pass phone
-          guests: order.customerDetails?.guests, // Pass guests
+          customerPhone: order.customerDetails?.phone,
+          guests: order.customerDetails?.guests,
           table: order.table,
         })
       );
-      dispatch(setCartItems(order.items));
-    }
-  }, [fetchedOrderData, dispatch]);
+
+      loadedOrderRef.current = orderId;
+    },
+  });
 
   useEffect(() => {
     document.title = "POS | Menu";
   }, []);
 
+  const customer = fetchedOrderData?.customerDetails;
+  const table = fetchedOrderData?.table;
+
   return (
     <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden flex gap-3">
-      {/* Left Div */}
       <div className="flex-[3]">
         <div className="flex items-center justify-between px-10 py-4">
           <div className="flex items-center gap-4">
             <BackButton />
-            <h1 className="text-[#f5f5f5] text-2xl font-bold tracking-wider">
-              Menu
-            </h1>
+            <h1 className="text-[#f5f5f5] text-2xl font-bold tracking-wider">Menu</h1>
           </div>
           <div className="flex items-center justify-around gap-4">
             <div className="flex items-center gap-3 cursor-pointer">
               <MdRestaurantMenu className="text-[#f5f5f5] text-4xl" />
               <div className="flex flex-col items-start">
-                {/* Display from Redux for consistency */}
                 <h1 className="text-md text-[#f5f5f5] font-semibold tracking-wide">
-                  {customerData.customerName || "Customer Name"}
+                  {customer?.name || "Customer Name"}
                 </h1>
                 <p className="text-xs text-[#ababab] font-medium">
-                  Table : {customerData.table?.tableNo || "N/A"}
+                  Table : {table?.tableNo || "N/A"}
                 </p>
               </div>
             </div>
@@ -78,15 +88,22 @@ const Menu = () => {
         <MenuContainer />
       </div>
 
-      {/* Right Div */}
       <div className="flex-[1] bg-[#1a1a1a] mt-4 mr-3 h-[780px] rounded-lg pt-2">
-        {/* CustomerInfo and Bill components will now use the correct data from Redux */}
-        <CustomerInfo /> 
-        <hr className="border-[#2a2a2a] border-t-2" />
-        <CartInfo />
-        <hr className="border-[#2a2a2a] border-t-2" />
-        <Bill />
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-[#ababab]">Loading order details...</p>
+          </div>
+        ) : (
+          <>
+            <CustomerInfo orderInfo={fetchedOrderData} />
+            <hr className="border-[#2a2a2a] border-t-2" />
+            <CartInfo />
+            <hr className="border-[#2a2a2a] border-t-2" />
+            <Bill key={orderId} orderData={fetchedOrderData} />
+          </>
+        )}
       </div>
+
       <BottomNav />
     </section>
   );
