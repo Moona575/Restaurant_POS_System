@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { getCategories, getDishesByCategory } from "../../https"; // ✅ use helpers
 import { GrRadialSelected } from "react-icons/gr";
 import { FaShoppingCart } from "react-icons/fa";
 import { useDispatch } from "react-redux";
@@ -22,7 +22,6 @@ const getCategoryEmoji = (name) => {
     Drinks: "🥤",
     Salad: "🥗",
   };
-  // Return emoji if known, else pick a “random” one
   return emojis[name] || ["🍽️", "🥘", "🍜", "🥪", "🌮"][name.length % 5];
 };
 
@@ -37,12 +36,13 @@ const MenuContainer = () => {
     const fetchMenus = async () => {
       try {
         setMenus([]); // reset menus when fetching
-        const categoriesRes = await axios.get("/api/categories");
+
+        const categoriesRes = await getCategories();
         const categories = categoriesRes.data.data;
 
         const menusData = await Promise.all(
           categories.map(async (category) => {
-            const dishesRes = await axios.get(`/api/dishes/category/${category._id}`);
+            const dishesRes = await getDishesByCategory(category._id);
             const dishes = dishesRes.data.data.map((dish) => ({
               ...dish,
               image: dish.image || placeholderImage,
