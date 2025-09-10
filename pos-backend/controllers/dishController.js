@@ -2,7 +2,8 @@ const Dish = require("../models/Dishmodel");
 const Category = require("../models/Categorymodel");
 const createHttpError = require("http-errors");
 const mongoose = require("mongoose");
- 
+ const Order = require("../models/orderModel");
+
 // Add Dish
 const addDish = async (req, res, next) => {
   try {
@@ -180,12 +181,49 @@ const getDishesByCategory = async (req, res, next) => {
     next(err);
   }
 };
+// Get top 10 popular dishes
+const getPopularDishes = async (req, res, next) => {
+  try {
+    const popular = await Order.aggregate([
+      { $unwind: "$items" }, // break apart items array
+      {
+        $group: {
+          _id: "$items.name", // group by dish name (or use items.id if consistent)
+          totalOrders: { $sum: "$items.quantity" }, // sum total ordered quantity
+        },
+      },
+      { $sort: { totalOrders: -1 } }, // sort descending
+      { $limit: 10 }, // top 10
+    ]);
 
+    // join with dish collection to get details
+    const dishes = await Dish.find({
+      name: { $in: popular.map((p) => p._id) },
+    });
+
+    // merge counts with dish details
+    const result = popular.map((p, index) => {
+      const dish = dishes.find((d) => d.name === p._id);
+      return {
+        rank: index + 1,
+        id: dish?._id,
+        name: dish?.name || p._id,
+        price: dish?.price || 0,
+        numberOfOrders: p.totalOrders,
+      };
+    });
+
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+};
 module.exports = {
   addDish,
   getDishes,
   getDish,
   updateDish,
   deleteDish,
-  getDishesByCategory
+  getDishesByCategory,
+  getPopularDishes,
 };
