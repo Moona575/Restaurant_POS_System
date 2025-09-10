@@ -27,7 +27,7 @@ export const getDish = (id) => axiosWrapper.get(`/api/dishes/${id}`);
 export const updateDish = (id, data) => axiosWrapper.put(`/api/dishes/${id}`, data);
 export const deleteDish = (id) => axiosWrapper.delete(`/api/dishes/${id}`);
 export const getDishesByCategory = (categoryId) => axiosWrapper.get(`/api/dishes/category/${categoryId}`);
-
+export const getPopularDishes = () => axiosWrapper.get("/api/dishes/popular");
 // Payment Endpoints
 export const createOrderRazorpay = (data) =>
   axiosWrapper.post("/api/payment/create-order", data);
