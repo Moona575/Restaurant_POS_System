@@ -132,16 +132,16 @@ const MenuContainer = () => {
 
   {/* Items */}
   {/* Items */}
-<div className="flex-1">
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+<div className="flex-1 w-full">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full">
     {selected.items.map((item) => (
       <div
         key={item._id || item.id}
-        className="flex flex-col justify-between p-3 md:p-4 rounded-lg min-h-[180px] w-full cursor-pointer hover:bg-[#2a2a2a] bg-[#1a1a1a] break-words min-w-0"
+        className="flex flex-col justify-between p-2 md:p-3 rounded-lg min-h-[140px] w-full cursor-pointer hover:bg-[#2a2a2a] bg-[#1a1a1a] break-words min-w-0"
       >
         {/* Name + Cart */}
         <div className="flex items-start justify-between w-full min-w-0">
-          <h1 className="text-[#f5f5f5] text-base sm:text-base md:text-base font-semibold break-words truncate">
+          <h1 className="text-[#f5f5f5] text-sm sm:text-base md:text-base font-semibold break-words truncate max-w-[70%]">
             {item.name}
           </h1>
           <button
@@ -153,23 +153,23 @@ const MenuContainer = () => {
         </div>
 
         {/* Price + Counter */}
-        <div className="flex items-center justify-between w-full mt-3 min-w-0">
-          <p className="text-[#f5f5f5] text-lg font-bold break-words truncate">
+        <div className="flex items-center justify-between w-full mt-2 min-w-0">
+          <p className="text-[#f5f5f5] text-sm sm:text-base md:text-lg font-bold break-words truncate max-w-[40%]">
             Rs {item.price}
           </p>
-          <div className="flex items-center justify-between bg-[#1f1f1f] px-3 py-2 rounded-lg gap-3 w-[50%] flex-shrink-0">
+          <div className="flex items-center justify-between bg-[#1f1f1f] px-3 py-1 rounded-lg gap-2 w-[55%] sm:w-[50%] flex-shrink-0">
             <button
               onClick={() => decrement(item._id || item.id)}
-              className="text-yellow-500 text-xl"
+              className="text-yellow-500 text-lg sm:text-xl"
             >
               &minus;
             </button>
-            <span className="text-white">
+            <span className="text-white text-sm sm:text-base">
               {itemId === (item._id || item.id) ? itemCount : 0}
             </span>
             <button
               onClick={() => increment(item._id || item.id)}
-              className="text-yellow-500 text-xl"
+              className="text-yellow-500 text-lg sm:text-xl"
             >
               &#43;
             </button>
