@@ -132,16 +132,17 @@ const MenuContainer = () => {
 
   {/* Items */}
   {/* Items */}
-<div className="flex-1 w-full">
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full">
+<div className="flex-1 w-full overflow-x-auto"> {/* allow horizontal scroll if needed */}
+  <div className="flex flex-wrap gap-4">
     {selected.items.map((item) => (
       <div
         key={item._id || item.id}
-        className="flex flex-col justify-between p-2 md:p-3 rounded-lg min-h-[140px] w-full cursor-pointer hover:bg-[#2a2a2a] bg-[#1a1a1a] break-words min-w-0"
+        className="flex flex-col justify-between p-2 md:p-3 rounded-lg min-h-[140px] cursor-pointer hover:bg-[#2a2a2a] bg-[#1a1a1a] break-words flex-shrink-0"
+        style={{ minWidth: '200px', maxWidth: '300px' }} // can adjust min/max widths
       >
         {/* Name + Cart */}
-        <div className="flex items-start justify-between w-full min-w-0">
-          <h1 className="text-[#f5f5f5] text-sm sm:text-base md:text-base font-semibold break-words truncate max-w-[70%]">
+        <div className="flex items-start justify-between w-full">
+          <h1 className="text-[#f5f5f5] text-sm sm:text-base md:text-base font-semibold break-words">
             {item.name}
           </h1>
           <button
@@ -153,11 +154,11 @@ const MenuContainer = () => {
         </div>
 
         {/* Price + Counter */}
-        <div className="flex items-center justify-between w-full mt-2 min-w-0">
-          <p className="text-[#f5f5f5] text-sm sm:text-base md:text-lg font-bold break-words truncate max-w-[40%]">
+        <div className="flex items-center justify-between w-full mt-2">
+          <p className="text-[#f5f5f5] text-sm sm:text-base md:text-lg font-bold break-words">
             Rs {item.price}
           </p>
-          <div className="flex items-center justify-between bg-[#1f1f1f] px-3 py-1 rounded-lg gap-2 w-[55%] sm:w-[50%] flex-shrink-0">
+          <div className="flex items-center justify-between bg-[#1f1f1f] px-3 py-1 rounded-lg gap-2 min-w-[110px] sm:min-w-[120px] flex-shrink-0">
             <button
               onClick={() => decrement(item._id || item.id)}
               className="text-yellow-500 text-lg sm:text-xl"
