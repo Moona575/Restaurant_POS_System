@@ -18,43 +18,53 @@ const PopularDishes = () => {
   }, []);
 
   return (
-    <div className="mt-6 pr-6">
-      <div className="bg-[#1a1a1a] w-full max-h-[90vh] rounded-lg flex flex-col">
+    <div className="px-4 sm:px-6 lg:px-8 mt-6 w-full h-[calc(100vh-2rem)]">
+      <div className="bg-[#1a1a1a] w-full h-full rounded-lg flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 flex-shrink-0">
-          <h1 className="text-[#f5f5f5] text-lg font-semibold tracking-wide">
+        <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0">
+          <h1 className="text-[#f5f5f5] text-base font-medium tracking-wide">
             Popular Dishes
           </h1>
-          <a href="" className="text-[#025cca] text-sm font-semibold">
+          <a href="#" className="text-[#025cca] text-xs sm:text-sm font-medium">
             View all
           </a>
         </div>
 
         {/* Dish list */}
-        <div className="overflow-y-auto flex-1 px-6 scrollbar-hide">
-          {dishes.map((dish) => (
-            <div
-              key={dish._id} // use MongoDB _id, not dish.id
-              className="flex items-center gap-4 bg-[#1f1f1f] rounded-[15px] px-6 py-4 mt-4"
-            >
-              <h1 className="text-[#f5f5f5] font-bold text-xl mr-4">
-                {dish.rank < 10 ? `0${dish.rank}` : dish.rank}
-              </h1>
-              <div className="w-[50px] h-[50px] rounded-full bg-[#2a2a2a] flex items-center justify-center">
-                🍽️
-              </div>
-              <div>
-                <h1 className="text-[#f5f5f5] font-semibold tracking-wide">
-                  {dish.name}
-                </h1>
-                <p className="text-[#f5f5f5] text-sm font-semibold mt-1">
-                  <span className="text-[#ababab]">Orders: </span>
-                  {dish.numberOfOrders}
-                </p>
-              </div>
-            </div>
-          ))}
+<div className="overflow-y-auto flex-1 px-4 sm:px-6 pb-4 scrollbar-hide">
+  {dishes.length > 0 ? (
+    dishes.map((dish) => (
+      <div
+        key={dish._id}
+        className="flex items-center gap-3 bg-[#1f1f1f] rounded-[15px] px-4 sm:px-5 py-2 sm:py-3 mt-3"
+      >
+        {/* Rank */}
+        <h1 className="text-[#f5f5f5] font-medium text-sm sm:text-base mr-3">
+          {dish.rank < 10 ? `0${dish.rank}` : dish.rank}
+        </h1>
+
+        {/* Icon */}
+        <div className="w-[35px] h-[35px] sm:w-[40px] sm:h-[40px] rounded-full bg-[#2a2a2a] flex items-center justify-center text-sm">
+          🍽️
         </div>
+
+        {/* Details */}
+        <div>
+          <h1 className="text-[#f5f5f5] font-medium tracking-wide text-xs sm:text-sm">
+            {dish.name}
+          </h1>
+          <p className="text-[#f5f5f5] text-[11px] sm:text-xs font-normal mt-1">
+            <span className="text-[#ababab]">Orders: </span>
+            {dish.numberOfOrders}
+          </p>
+        </div>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-500 text-xs mt-4">No popular dishes found</p>
+  )}
+</div>
+
       </div>
     </div>
   );

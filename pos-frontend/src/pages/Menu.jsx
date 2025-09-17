@@ -64,48 +64,55 @@ const Menu = () => {
   const table = fetchedOrderData?.table;
 
   return (
-    <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] overflow-hidden flex gap-3">
-      <div className="flex-[3]">
-        <div className="flex items-center justify-between px-10 py-4">
-          <div className="flex items-center gap-4">
-            <BackButton />
-            <h1 className="text-[#f5f5f5] text-2xl font-bold tracking-wider">Menu</h1>
-          </div>
-          <div className="flex items-center justify-around gap-4">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <MdRestaurantMenu className="text-[#f5f5f5] text-4xl" />
-              <div className="flex flex-col items-start">
-                <h1 className="text-md text-[#f5f5f5] font-semibold tracking-wide">
-                  {customer?.name || "Customer Name"}
-                </h1>
-                <p className="text-xs text-[#ababab] font-medium">
-                  Table : {table?.tableNo || "N/A"}
-                </p>
-              </div>
-            </div>
+    <section className="bg-[#1f1f1f] min-h-[calc(100vh-5rem)] overflow-y-auto scrollbar-hide flex flex-col md:flex-row gap-3 px-4 sm:px-6">
+  {/* Left Main Section */}
+  <div className="flex-[3] min-w-0 flex flex-col">
+    <div className="flex items-center justify-between px-4 py-3 sm:px-10 sm:py-4 flex-shrink-0">
+      <div className="flex items-center gap-4">
+        <BackButton />
+        <h1 className="text-[#f5f5f5] text-2xl font-medium tracking-wide">Menu</h1>
+      </div>
+      <div className="flex items-center justify-around gap-4">
+        <div className="flex items-center gap-3 cursor-pointer">
+          <MdRestaurantMenu className="text-[#f5f5f5] text-3xl sm:text-4xl" />
+          <div className="flex flex-col items-start min-w-0">
+            <h1 className="text-md sm:text-base text-[#f5f5f5] font-normal truncate">
+              {customer?.name || "Customer Name"}
+            </h1>
+            <p className="text-xs sm:text-sm text-[#ababab] font-normal truncate">
+              Table : {table?.tableNo || "N/A"}
+            </p>
           </div>
         </div>
-        <MenuContainer />
       </div>
+    </div>
 
-      <div className="flex-[1] bg-[#1a1a1a] mt-4 mr-3 h-[780px] rounded-lg pt-2">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-[#ababab]">Loading order details...</p>
-          </div>
-        ) : (
-          <>
-            <CustomerInfo orderInfo={fetchedOrderData} />
-            <hr className="border-[#2a2a2a] border-t-2" />
-            <CartInfo />
-            <hr className="border-[#2a2a2a] border-t-2" />
-            <Bill key={orderId} orderData={fetchedOrderData} />
-          </>
-        )}
+    {/* Menu Container */}
+    <div className="pb-4 flex-1 min-w-0">
+      <MenuContainer />
+    </div>
+  </div>
+
+  {/* Right Sidebar */}
+  <div className="flex-[1] bg-[#1a1a1a] mt-4 md:mt-0 rounded-lg pt-2 flex flex-col w-full md:w-auto md:max-h-[calc(100vh-5rem)]">
+    {isLoading ? (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-[#ababab] font-normal">Loading order details...</p>
       </div>
+    ) : (
+      <div className="flex flex-col flex-1 md:overflow-y-auto scrollbar-hide gap-2 px-2 pb-4">
+        <CustomerInfo orderInfo={fetchedOrderData} />
+        <hr className="border-[#2a2a2a] border-t-2" />
+        <CartInfo />
+        <hr className="border-[#2a2a2a] border-t-2" />
+        <Bill key={orderId} orderData={fetchedOrderData} />
+      </div>
+    )}
+  </div>
 
-      <BottomNav />
-    </section>
+  <BottomNav />
+</section>
+
   );
 };
 

@@ -28,50 +28,56 @@ const Tables = () => {
   console.log(resData);
 
   return (
-    <section className="bg-[#1f1f1f]  h-[calc(100vh-5rem)] overflow-hidden">
-      <div className="flex items-center justify-between px-10 py-4">
-        <div className="flex items-center gap-4">
-          <BackButton />
-          <h1 className="text-[#f5f5f5] text-2xl font-bold tracking-wider">
-            Tables
-          </h1>
-        </div>
-        <div className="flex items-center justify-around gap-4">
-          <button
-            onClick={() => setStatus("all")}
-            className={`text-[#ababab] text-lg ${
-              status === "all" && "bg-[#383838] rounded-lg px-5 py-2"
-            }  rounded-lg px-5 py-2 font-semibold`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setStatus("booked")}
-            className={`text-[#ababab] text-lg ${
-              status === "booked" && "bg-[#383838] rounded-lg px-5 py-2"
-            }  rounded-lg px-5 py-2 font-semibold`}
-          >
-            Booked
-          </button>
-        </div>
-      </div>
+    <section className="bg-[#1f1f1f] h-[calc(100vh-5rem)] flex flex-col">
+  {/* Header */}
+  <div className="flex items-center justify-between px-4 sm:px-10 py-2 flex-wrap gap-4">
+    <div className="flex items-center gap-3">
+      <BackButton />
+      <h1 className="text-[#f5f5f5] text-lg font-bold tracking-wide">
+        Tables
+      </h1>
+    </div>
+    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+  <button
+    onClick={() => setStatus("all")}
+    className={`text-[#ababab] text-sm sm:text-base px-4 py-1.5 sm:px-5 sm:py-2 rounded-lg font-semibold ${
+      status === "all" && "bg-[#383838]"
+    }`}
+  >
+    All
+  </button>
+  <button
+    onClick={() => setStatus("booked")}
+    className={`text-[#ababab] text-sm sm:text-base px-4 py-1.5 sm:px-5 sm:py-2 rounded-lg font-semibold ${
+      status === "booked" && "bg-[#383838]"
+    }`}
+  >
+    Booked
+  </button>
+</div>
 
-      <div className="grid grid-cols-5 gap-3 px-16 py-4 h-[650px] overflow-y-scroll scrollbar-hide">
-        {resData?.data.data.map((table) => {
-          return (
-            <TableCard
-              id={table._id}
-              name={table.tableNo}
-              status={table.status}
-              initials={table?.currentOrder?.customerDetails.name}
-              seats={table.seats}
-            />
-          );
-        })}
-      </div>
+  </div>
 
-      <BottomNav />
-    </section>
+  {/* Tables Grid */}
+  <div className="flex-1 overflow-y-auto p-4 sm:p-8 scrollbar-hide">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      {resData?.data.data.map((table) => (
+        <TableCard
+          key={table._id}
+          id={table._id}
+          name={table.tableNo}
+          status={table.status}
+          initials={table?.currentOrder?.customerDetails.name}
+          seats={table.seats}
+          className="min-w-[260px] max-w-[340px] p-6 sm:p-7"
+        />
+      ))}
+    </div>
+  </div>
+
+  <BottomNav />
+</section>
+
   );
 };
 

@@ -97,75 +97,91 @@ const MenuContainer = () => {
 
   return (
     <>
-      {/* Categories */}
-      <div className="grid grid-cols-4 gap-4 px-10 py-4 w-[100%]">
-        {menus.map((menu) => (
-          <div
-            key={menu.id}
-            className="flex flex-col items-start justify-between p-4 rounded-lg h-[100px] cursor-pointer"
-            style={{ backgroundColor: menu.bgColor }}
-            onClick={() => {
-              setSelected(menu);
-              setItemId(null);
-              setItemCount(0);
-            }}
-          >
-            <div className="flex items-center justify-between w-full">
-              <h1 className="text-[#f5f5f5] text-lg font-semibold">
-                {menu.icon} {menu.name}
-              </h1>
-              {selected.id === menu.id && (
-                <GrRadialSelected className="text-white" size={20} />
-              )}
-            </div>
-            <p className="text-[#ababab] text-sm font-semibold">
-              {menu.items.length} Items
-            </p>
-          </div>
-        ))}
-      </div>
+      <div className="px-4 sm:px-8 py-4 w-full flex flex-col h-[calc(100vh-5rem)]">
+  {/* Categories */}
+  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
+    {menus.map((menu) => (
+      <div
+        key={menu.id}
+        className={`flex items-center justify-between p-3 md:p-4 rounded-lg cursor-pointer transition-all duration-200 break-words`}
+        style={{ backgroundColor: menu.bgColor, minHeight: "80px" }}
+        onClick={() => {
+          setSelected(menu);
+          setItemId(null);
+          setItemCount(0);
+        }}
+      >
+        {/* Left: Icon + Name */}
+        <div className="flex items-center gap-2">
+          <span className="text-[#f5f5f5] text-sm sm:text-base md:text-base font-semibold flex items-center gap-1">
+            {menu.icon} {menu.name}
+          </span>
+        </div>
 
-      <hr className="border-[#2a2a2a] border-t-2 mt-4" />
-
-      {/* Items */}
-      <div className="grid grid-cols-4 gap-4 px-10 py-4 w-[100%]">
-        {selected.items.map((item) => (
-          <div
-            key={item._id || item.id}
-            className="flex flex-col items-start justify-between p-4 rounded-lg h-[180px] cursor-pointer hover:bg-[#2a2a2a] bg-[#1a1a1a]"
-          >
-            <div className="flex items-start justify-between w-full">
-              <h1 className="text-[#f5f5f5] text-lg font-semibold">{item.name}</h1>
-              <button
-                onClick={() => handleAddToCart(item)}
-                className="bg-[#2e4a40] text-[#02ca3a] p-2 rounded-lg"
-              >
-                <FaShoppingCart size={20} />
-              </button>
-            </div>
-            <div className="flex items-center justify-between w-full mt-2">
-              <p className="text-[#f5f5f5] text-xl font-bold">Rs {item.price}</p>
-              <div className="flex items-center justify-between bg-[#1f1f1f] px-4 py-3 rounded-lg gap-6 w-[50%]">
-                <button
-                  onClick={() => decrement(item._id || item.id)}
-                  className="text-yellow-500 text-2xl"
-                >
-                  &minus;
-                </button>
-                <span className="text-white">
-                  {itemId === (item._id || item.id) ? itemCount : 0}
-                </span>
-                <button
-                  onClick={() => increment(item._id || item.id)}
-                  className="text-yellow-500 text-2xl"
-                >
-                  &#43;
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
+        {/* Right: Radio Button */}
+        <div>
+          {selected.id === menu.id && (
+            <GrRadialSelected className="text-white" size={20} />
+          )}
+        </div>
       </div>
+    ))}
+  </div>
+
+  <hr className="border-[#2a2a2a] border-t-2 my-4" />
+
+  {/* Items */}
+  {/* Items */}
+<div className="flex-1">
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    {selected.items.map((item) => (
+      <div
+        key={item._id || item.id}
+        className="flex flex-col justify-between p-3 md:p-4 rounded-lg min-h-[180px] w-full cursor-pointer hover:bg-[#2a2a2a] bg-[#1a1a1a] break-words min-w-0"
+      >
+        {/* Name + Cart */}
+        <div className="flex items-start justify-between w-full min-w-0">
+          <h1 className="text-[#f5f5f5] text-base sm:text-base md:text-base font-semibold break-words truncate">
+            {item.name}
+          </h1>
+          <button
+            onClick={() => handleAddToCart(item)}
+            className="bg-[#2e4a40] text-[#02ca3a] p-2 rounded-lg flex-shrink-0"
+          >
+            <FaShoppingCart size={18} />
+          </button>
+        </div>
+
+        {/* Price + Counter */}
+        <div className="flex items-center justify-between w-full mt-3 min-w-0">
+          <p className="text-[#f5f5f5] text-lg font-bold break-words truncate">
+            Rs {item.price}
+          </p>
+          <div className="flex items-center justify-between bg-[#1f1f1f] px-3 py-2 rounded-lg gap-3 w-[50%] flex-shrink-0">
+            <button
+              onClick={() => decrement(item._id || item.id)}
+              className="text-yellow-500 text-xl"
+            >
+              &minus;
+            </button>
+            <span className="text-white">
+              {itemId === (item._id || item.id) ? itemCount : 0}
+            </span>
+            <button
+              onClick={() => increment(item._id || item.id)}
+              className="text-yellow-500 text-xl"
+            >
+              &#43;
+            </button>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+</div>
+
     </>
   );
 };
